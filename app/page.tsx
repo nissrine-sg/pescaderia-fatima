@@ -1,57 +1,89 @@
-const products = [
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+const seedProducts = [
   {
     name: "Dorada",
     type: "Pescado entero",
     description: "Carne fina y delicada, ideal al horno o a la plancha.",
+    price: "14,90 €/kg",
+    storage: "Fresco",
+    preparation: "Entera · Fileteada",
+    status: "Disponible",
     image: "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?auto=format&fit=crop&w=900&q=85",
   },
   {
     name: "Saumon",
     type: "Lomo y filete",
     description: "Textura suave, cortado al momento según tus preferencias.",
+    price: "22,90 €/kg",
+    storage: "Fresco / Congelado",
+    preparation: "Lomo · Filete",
+    status: "Disponible",
     image: "https://images.unsplash.com/photo-1499125562588-29fb8a56b5d5?auto=format&fit=crop&w=900&q=85",
   },
   {
     name: "Sardinas",
     type: "Pesca del día",
     description: "Brillantes, carnosas y sabrosas, perfectas a la parrilla.",
+    price: "7,90 €/kg",
+    storage: "Fresco",
+    preparation: "Enteras",
+    status: "Últimas unidades",
     image: "https://images.unsplash.com/photo-1534043464124-3be32fe000c9?auto=format&fit=crop&w=900&q=85",
   },
   {
     name: "Merluza",
     type: "Pescado entero",
     description: "Carne blanca, tierna y ligera para toda la familia.",
+    price: "12,90 €/kg",
+    storage: "Fresco",
+    preparation: "Entera · Fileteada",
+    status: "Disponible",
     image: "https://images.unsplash.com/photo-1498623116890-37e912163d5d?auto=format&fit=crop&w=900&q=85",
   },
   {
     name: "Gambas",
     type: "Marisco",
     description: "Seleccionadas con cuidado, firmes y llenas de sabor marino.",
+    price: "18,90 €/kg",
+    storage: "Fresco / Congelado",
+    preparation: "250 g · 500 g · 1 kg",
+    status: "Disponible",
     image: "https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=900&q=85",
   },
   {
     name: "Calamar",
     type: "Preparado al momento",
     description: "Limpio y listo para cocinar, tierno a la sartén o a la parrilla.",
+    price: "16,90 €/kg",
+    storage: "Fresco",
+    preparation: "Entero · Limpio",
+    status: "Disponible",
     image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=900&q=85",
   },
   {
     name: "Pescado blanco",
     type: "Filete del día",
     description: "Nuestra selección diaria: suave, ligera y sin espinas.",
+    price: "13,90 €/kg",
+    storage: "Fresco",
+    preparation: "Filete",
+    status: "Disponible",
     image: "https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=900&q=85",
   },
 ];
 
-const availability = [
-  ["Dorada", "Fresco", "Entera · Fileteada", "Disponible"],
-  ["Salmón", "Fresco / Congelado", "Lomo · Filete", "Disponible"],
-  ["Sardinas", "Fresco", "Enteras", "Últimas unidades"],
-  ["Gambas", "Fresco / Congelado", "250 g · 500 g · 1 kg", "Disponible"],
-  ["Calamar", "Fresco", "Entero · Limpio", "Disponible"],
-];
-
 export default function Home() {
+  const [products, setProducts] = useState(seedProducts);
+  useEffect(() => {
+    fetch("/api/products")
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => { if (Array.isArray(data) && data.length) setProducts(data); })
+      .catch(() => undefined);
+  }, []);
+  const availability = useMemo(() => products.filter((product) => product.status !== "No disponible").slice(0, 5).map((product) => [product.name, product.storage, product.preparation, product.status]), [products]);
   return (
     <main>
       <header className="site-header">
@@ -111,7 +143,7 @@ export default function Home() {
           {products.map((product, index) => (
             <article className={`product-card ${index === 0 ? "featured" : ""}`} key={product.name}>
               <div className="product-image"><img src={product.image} alt={product.name} loading={index > 2 ? "lazy" : "eager"}/><span>{String(index + 1).padStart(2, "0")}</span></div>
-              <div className="product-copy"><small>{product.type}</small><h3>{product.name}</h3><p>{product.description}</p><a href="#commande" aria-label={`Pedir ${product.name}`}>Pedir <span>→</span></a></div>
+              <div className="product-copy"><small>{product.type}</small><h3>{product.name}</h3><p>{product.description}</p><b className="product-price">{product.price}</b><a href="#commande" aria-label={`Pedir ${product.name}`}>Pedir <span>→</span></a></div>
             </article>
           ))}
         </div>
@@ -171,7 +203,7 @@ export default function Home() {
       <footer>
         <a className="brand footer-brand" href="#accueil"><span className="brand-mark">F</span><span><strong>PESCADERÍA</strong><small>FATIMA · PESCADO & MARISCO</small></span></a>
         <p>Frescura del Mar Cada Día.</p>
-        <div><span>© 2026 Pescadería Fatima</span><span>Creación: Nissrine Sghir</span></div>
+        <div><span>© 2026 Pescadería Fatima</span><a href="/admin">Acceso propietario</a><span>Creación: Nissrine Sghir</span></div>
       </footer>
     </main>
   );
